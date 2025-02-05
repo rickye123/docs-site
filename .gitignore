@@ -1,6 +1,3 @@
-# Generated CSS files (all styles should be committed as .scss)
-*.css
-
 # Serverless metadata
 .serverless
 
