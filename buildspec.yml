@@ -9,7 +9,7 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 18.x
+      nodejs: 22.x
     commands:
       - npm install -g yarn "serverless@^3.0.0"
   pre_build:
