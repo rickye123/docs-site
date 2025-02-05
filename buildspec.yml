@@ -1,0 +1,26 @@
+version: 0.1
+
+env:
+  variables:
+    CI: true
+    FORCE_COLOR: 0
+    DOCS_SITE_URL: https://cybonyx-docs-site.com
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18.x
+    commands:
+      - npm install -g yarn "serverless@^3.0.0"
+  pre_build:
+    commands:
+      - yarn install
+  build:
+    on-failure: ABORT
+    commands:
+      - yarn run lint
+      - yarn run build
+  post_build:
+    commands:
+      - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
+      - echo "Build completed on $(date)"
