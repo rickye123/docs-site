@@ -17,8 +17,6 @@ custom:
     owner: ${env:OWNER,'N/A'}
     ownerFunction: ${env:OWNER_FUNCTION,'N/A'}
     customer: ${env:CUSTOMER,'i1'}
-plugins:
-  - serverless-plugin-safe-s3-upload
 
 resources:
   Resources:
