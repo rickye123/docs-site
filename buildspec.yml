@@ -22,5 +22,8 @@ phases:
       - yarn run build
   post_build:
     commands:
+      - echo Deploying to S3...
+      - aws s3 sync ./build/ s3://dev-docs-site-eu-west-2/ --delete 
+
       - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
       - echo "Build completed on $(date)"
