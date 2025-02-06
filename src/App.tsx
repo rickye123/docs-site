@@ -1,29 +1,47 @@
-import React from 'react';
-import { useState } from 'react'
-import './App.css'
+// src/App.tsx
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { AddPage } from './components/AddPage';
+import { ViewPage } from './components/ViewPage';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        
+    <Router>
+      <div className="app">
+        <Sidebar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/add-page" element={<AddPage />} />
+            <Route path="/view-page/:slug" element={<ViewPage />} />
+          </Routes>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </Router>
+  );
+};
 
-export default App
+const Home = () => (
+  <div>
+    <h1>Documentation Site</h1>
+    <p>Welcome to the Documentation Site. Use the sidebar to navigate.</p>
+  </div>
+);
+
+const Sidebar = () => (
+  <nav className="sidebar">
+    <ul>
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/add-page">Add a Page</Link>
+      </li>
+      <li>
+        <Link to="/view-page/intro">View Page</Link>
+      </li>
+    </ul>
+  </nav>
+);
+
+export default App;
