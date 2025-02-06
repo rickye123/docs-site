@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/aws-sdk": "^2.7.4",
+    "@types/axios": "^0.14.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.3",

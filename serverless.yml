@@ -60,7 +60,7 @@ functions:
           path: pages
           method: post
           cors: true
-          
+
   getPage:
     handler: handler.getPage
     events:
