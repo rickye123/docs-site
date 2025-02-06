@@ -15,7 +15,6 @@ phases:
   pre_build:
     commands:
       - yarn install
-      - yarn add serverless-plugin-safe-s3-upload
   build:
     on-failure: ABORT
     commands:
