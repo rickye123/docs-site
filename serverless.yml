@@ -11,12 +11,19 @@ provider:
     OwnerFunction: ${self:custom.tags.ownerFunction}
     Customer: ${self:custom.tags.customer}
 
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
 custom:
   bucketName: ${self:provider.stage}-docs-site-${self:provider.region}
   tags:
     owner: ${env:OWNER,'N/A'}
     ownerFunction: ${env:OWNER_FUNCTION,'N/A'}
     customer: ${env:CUSTOMER,'i1'}
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
 
 resources:
   Resources:
@@ -31,3 +38,33 @@ resources:
           BlockPublicPolicy: false
           IgnorePublicAcls: false
           RestrictPublicBuckets: false
+    DocsPagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: docs-pages
+        AttributeDefinitions:
+          - AttributeName: slug
+            AttributeType: S
+        KeySchema:
+          - AttributeName: slug
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+          
+functions:
+  createPage:
+    handler: handler.createPage
+    events:
+      - http:
+          path: pages
+          method: post
+          cors: true
+          
+  getPage:
+    handler: handler.getPage
+    events:
+      - http:
+          path: pages/{slug}
+          method: get
+          cors: true
