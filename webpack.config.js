@@ -1,10 +1,13 @@
-const path = require('path');
-const slsw = require('serverless-webpack');
+// webpack.config.js (converted to ES module syntax)
+import path from 'path';
+import webpack from 'webpack';
 
-module.exports = {
-  entry: slsw.lib.entries,
-  target: 'node',
-  externals: [require('webpack-node-externals')()],
+export default {
+  entry: './src/index.ts',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
   resolve: {
     extensions: ['.ts', '.js'],
   },
@@ -12,16 +15,9 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        loader: 'ts-loader',
-        options: {
-          configFile: 'tsconfig.json',
-        },
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
     ],
-  },
-  output: {
-    libraryTarget: 'commonjs',
-    path: path.join(__dirname, '.webpack'),
-    filename: '[name].js',
   },
 };

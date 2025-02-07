@@ -4,15 +4,15 @@ provider:
   name: aws
   stage: dev
   region: eu-west-2
+  environment:
+    S3_BUCKET_NAME: ${self:custom.bucketName}
   stackTags:
     Name: ${self:service}
     Description: A simple static site for documentation
     Owner: ${self:custom.tags.owner}
     OwnerFunction: ${self:custom.tags.ownerFunction}
-    Customer: ${self:custom.tags.customer}
 
 plugins:
-  - serverless-webpack
   - serverless-offline
 
 custom:
@@ -20,51 +20,41 @@ custom:
   tags:
     owner: ${env:OWNER,'N/A'}
     ownerFunction: ${env:OWNER_FUNCTION,'N/A'}
-    customer: ${env:CUSTOMER,'i1'}
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
-
+  serverless-offline:
+    httpPort: 3001
+    
 resources:
   Resources:
-    DocsSiteBucket:
+    DocsS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.bucketName}
-        WebsiteConfiguration:
-          IndexDocument: index.html
-        PublicAccessBlockConfiguration:
-          BlockPublicAcls: false
-          BlockPublicPolicy: false
-          IgnorePublicAcls: false
-          RestrictPublicBuckets: false
-    DocsPagesTable:
-      Type: AWS::DynamoDB::Table
+        BucketName: dev-docs-site-eu-west-2
+    DocsS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
       Properties:
-        TableName: docs-pages
-        AttributeDefinitions:
-          - AttributeName: slug
-            AttributeType: S
-        KeySchema:
-          - AttributeName: slug
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+        Bucket: !Ref DocsS3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:GetObject"
+              Resource: "arn:aws:s3:::dev-docs-site-eu-west-2/*"
+              Principal: "*"
           
 functions:
-  createPage:
-    handler: handler.createPage
+
+  getContent:
+    handler: src/handler.getContent
     events:
       - http:
-          path: pages
-          method: post
+          path: pages/{filePath*} # Single function handles everything
+          method: get
           cors: true
 
-  getPage:
-    handler: handler.getPage
+  uploadMarkdown:
+    handler: src/handler.uploadMarkdown
     events:
       - http:
-          path: pages/{slug}
-          method: get
+          path: upload
+          method: post
           cors: true
