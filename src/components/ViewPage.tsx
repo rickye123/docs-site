@@ -1,32 +1,31 @@
-// src/components/ViewPage.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { marked } from "marked";
 
 export const ViewPage = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const [page, setPage] = useState<any>(null);
+  const { filePath = "" } = useParams<{ filePath: string }>();
+  const [content, setContent] = useState<string>("");
 
   useEffect(() => {
-    const fetchPage = async () => {
+    const fetchMarkdown = async () => {
       try {
-        const response = await axios.get(`/pages/${slug}`);
-        setPage(response.data);
+        console.log("Fetching content for:", encodeURIComponent(filePath));
+        const response = await axios.get(`/dev/pages/${encodeURIComponent(filePath)}`);
+        const htmlContent = await marked(response.data.content);
+        setContent(htmlContent); // Convert to HTML
       } catch (error) {
-        console.error(error);
-        alert('Page not found');
+        console.error("Error fetching content:", error);
       }
     };
 
-    fetchPage();
-  }, [slug]);
-
-  if (!page) return <p>Loading...</p>;
+    fetchMarkdown();
+  }, [filePath]);
 
   return (
     <div>
-      <h2>{page.title}</h2>
-      <div dangerouslySetInnerHTML={{ __html: page.content }} />
+      <h2>{filePath.replace(".md", "")}</h2>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );
 };
