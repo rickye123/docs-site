@@ -5,7 +5,8 @@ provider:
   stage: dev
   region: eu-west-2
   environment:
-    S3_BUCKET_NAME: ${self:custom.bucketName}
+    HOSTING_BUCKET_NAME: ${self:custom.hostingBucketName}
+    DOCS_BUCKET_NAME: ${self:custom.docsBucketName}
   stackTags:
     Name: ${self:service}
     Description: A simple static site for documentation
@@ -16,7 +17,8 @@ plugins:
   - serverless-offline
 
 custom:
-  bucketName: ${self:provider.stage}-docs-site-${self:provider.region}
+  hostingBucketName: ${self:provider.stage}-docs-site-hosting-${self:provider.region}
+  docsBucketName: ${self:provider.stage}-docs-site-docs-${self:provider.region}
   tags:
     owner: ${env:OWNER,'N/A'}
     ownerFunction: ${env:OWNER_FUNCTION,'N/A'}
@@ -25,10 +27,28 @@ custom:
     
 resources:
   Resources:
+    HostingS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.hostingBucketName}
+
     DocsS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: dev-docs-site-eu-west-2
+        BucketName: ${self:custom.docsBucketName}
+
+    HostingS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref HostingS3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:GetObject"
+              Resource: !Sub "arn:aws:s3:::${self:custom.hostingBucketName}/*"
+              Principal: "*"
+
     DocsS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -38,23 +58,5 @@ resources:
           Statement:
             - Effect: Allow
               Action: "s3:GetObject"
-              Resource: "arn:aws:s3:::dev-docs-site-eu-west-2/*"
+              Resource: !Sub "arn:aws:s3:::${self:custom.docsBucketName}/*"
               Principal: "*"
-          
-functions:
-
-  getContent:
-    handler: src/handler.getContent
-    events:
-      - http:
-          path: pages/{filePath*} # Single function handles everything
-          method: get
-          cors: true
-
-  uploadMarkdown:
-    handler: src/handler.uploadMarkdown
-    events:
-      - http:
-          path: upload
-          method: post
-          cors: true

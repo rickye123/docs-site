@@ -3,7 +3,7 @@ import { APIGatewayEvent, Context, Callback } from 'aws-lambda';
 import AWS from 'aws-sdk';
 
 const s3 = new AWS.S3();
-const BUCKET_NAME = process.env.S3_BUCKET_NAME; // This should be set in the environment or serverless config
+const BUCKET_NAME = process.env.DOCS_BUCKET_NAME; // This should be set in the environment or serverless config
 
 export const listPagesAndDirectories = async (event: { pathParameters?: { filePath?: string } }) => {
   try {
