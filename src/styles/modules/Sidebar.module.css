@@ -1,0 +1,117 @@
+@import url('Root.module.css'); /* Import the global styles */
+
+/* Reset default margins and paddings */
+body, ul, li {
+    margin: 0;
+    padding: 0;
+  }
+  
+  ul {
+    list-style: none;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Fully hidden initially */
+    height: 100%;
+    width: 250px;
+    background-color: var(--light-contrast-color);
+    color: var(--light-default);
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transition: left 0.3s ease-in-out;
+    z-index: 1000;
+  }
+  
+  .sidebar.open {
+    left: 0; /* Slide in */
+    transform: translateX(0);
+    padding-top: 80px; /* Adjust this value based on the height of the top bar or header */
+  }
+  
+  .sidebar nav ul li {
+    margin: 20px 0;
+  }
+  
+  .sidebar nav ul li a {
+    color: var(--light-default);
+    text-decoration: none;
+    font-size: 18px;
+  }
+  
+  .sidebar nav ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Burger Button */
+  .burger-button {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 1100; /* Above sidebar */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 24px;
+    width: 30px;
+  }
+  
+  .burger-button span {
+    display: block;
+    height: 4px;
+    width: 100%;
+    background-color: var(--light-contrast-color);
+    border-radius: 2px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Hide the burger icon and show "X" when open */
+  .burger-button.open span {
+    display: none; /* Hide the burger icon when the sidebar is open */
+  }
+  
+  .burger-button.open::before {
+    content: 'X'; /* Show an 'X' character when open */
+    font-size: 20px; /* Size the X to fit well */
+    color: var(--light-default);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto; /* Center the X */
+    font-weight: bold;
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+  }
+  
+  /* Overlay when sidebar is open */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900; /* Below the sidebar but above content */
+  }
+  
+  .submenu {
+    list-style-type: none;
+    padding-left: 20px; /* Indent the submenu */
+  }
+  
+  .submenu li {
+    margin-bottom: 5px;
+  }
+  
+  .submenu li a {
+    font-size: 0.9rem; /* Smaller font size for submenu items */
+  }

@@ -60,3 +60,36 @@ resources:
               Action: "s3:GetObject"
               Resource: !Sub "arn:aws:s3:::${self:custom.docsBucketName}/*"
               Principal: "*"
+
+functions:
+  deleteMarkdown:
+    handler: src/handler.deleteMarkdown
+    events:
+      - http:
+          path: delete
+          method: delete
+          cors: true
+
+  getContent:
+    handler: src/handler.getContent
+    events:
+      - http:
+          path: pages/{filePath*} # Single function handles everything
+          method: get
+          cors: true
+
+  uploadMarkdown:
+    handler: src/handler.uploadMarkdown
+    events:
+      - http:
+          path: upload
+          method: post
+          cors: true
+
+  saveContent:
+    handler: src/handler.saveContent
+    events:
+      - http:
+          path: pages/{filePath*}
+          method: put
+          cors: true

@@ -24,3 +24,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Temp folder that appears but needs ignorring until we know why it appears
+/undefined
