@@ -31,11 +31,13 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.hostingBucketName}
+      DeletionPolicy: Retain  # Prevent CloudFormation from deleting the bucket
 
     DocsS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucketName}
+      DeletionPolicy: Retain  # Prevent CloudFormation from deleting the bucket
 
     HostingS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
