@@ -99,6 +99,7 @@ export const uploadMarkdown = async (event: APIGatewayEvent) => {
     try {
       await marked.parse(fileContent);
     } catch (error) {
+      console.error("Invalid Markdown syntax:", error);
       return { statusCode: 400, body: JSON.stringify({ error: "Invalid Markdown syntax" }) };
     }
 

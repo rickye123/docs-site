@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import DocumentationNav from "../components/DocumentationNav";
 import ViewDocumentation from "../components/ViewDocumentation";
@@ -12,7 +11,6 @@ export const Documentation = () => {
   const [error, setError] = useState<string>("");
   const [currentPath, setCurrentPath] = useState<string>(""); // Root starts as empty
   const [fileSelected, setFileSelected] = useState<string>();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchContent(""); // Load root directory on mount

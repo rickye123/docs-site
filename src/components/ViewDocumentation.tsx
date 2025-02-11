@@ -57,6 +57,7 @@ export const ViewDocumentation = ({ suppliedFilePath }: { suppliedFilePath: stri
       marked.lexer(input); // If this fails, the markdown is invalid
       return true;
     } catch (e) {
+      console.error("Invalid Markdown:", e);
       return false;
     }
   };
@@ -83,6 +84,7 @@ export const ViewDocumentation = ({ suppliedFilePath }: { suppliedFilePath: stri
       alert("File deleted successfully!");
       // Optionally refresh the list of files
     } catch (error) {
+      console.error('Error Deleting file: ', error);
       alert("Error deleting file");
     }
   };

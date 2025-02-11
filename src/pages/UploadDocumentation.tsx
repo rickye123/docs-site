@@ -37,6 +37,7 @@ export const UploadDocumentation: React.FC = () => {
     } catch (error) {
       setError("Error uploading file");
       alert("Error uploading file");
+      console.error(error);
     }
   };
 
