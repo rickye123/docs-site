@@ -18,6 +18,7 @@ const Sidebar: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
+
   const handleScroll = () => {
     const currentScrollPosition = window.scrollY;
 
@@ -38,7 +39,7 @@ const Sidebar: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [handleScroll]);
+  }, []);
 
   return (
     <>

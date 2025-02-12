@@ -28,6 +28,6 @@ phases:
       - aws s3 sync ./build/ s3://$HOSTING_BUCKET/ --region "$AWS_DEFAULT_REGION"
 
       - echo "Deploying API with Serverless..."
-      - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
+      - serverless remove --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
 
       - echo "Build completed on $(date)"
