@@ -33,6 +33,8 @@ functions:
           path: delete
           method: delete
           cors: true
+    logs:
+      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-deleteMarkdown-${opt:timestamp, 'default'}"
 
   getContent:
     handler: src/handler.getContent
@@ -41,6 +43,8 @@ functions:
           path: pages/{filePath*} # Single function handles everything
           method: get
           cors: true
+    logs:
+      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-getContent-${opt:timestamp, 'default'}"
 
   uploadMarkdown:
     handler: src/handler.uploadMarkdown
@@ -49,6 +53,8 @@ functions:
           path: upload
           method: post
           cors: true
+    logs:
+      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-uploadMarkdown-${opt:timestamp, 'default'}"
 
   saveContent:
     handler: src/handler.saveContent
@@ -57,3 +63,5 @@ functions:
           path: pages/{filePath*}
           method: put
           cors: true
+    logs:
+      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-saveContent-${opt:timestamp, 'default'}"
