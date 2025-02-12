@@ -31,13 +31,19 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.hostingBucketName}
-      DeletionPolicy: Retain  # Prevent CloudFormation from deleting the bucket
+      DeletionPolicy: Retain  # Prevent accidental deletion
+      Condition: CreateHostingBucket  # Only create if the condition is met
 
     DocsS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucketName}
-      DeletionPolicy: Retain  # Prevent CloudFormation from deleting the bucket
+      DeletionPolicy: Retain  # Prevent accidental deletion
+      Condition: CreateDocsBucket  # Only create if the condition is met
+
+  Conditions:
+    CreateHostingBucket: !Equals [!Ref HostingS3Bucket, ""]  # Only create if it doesn't exist
+    CreateDocsBucket: !Equals [!Ref DocsS3Bucket, ""]  # Only create if it doesn't exist
 
     HostingS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
