@@ -25,50 +25,6 @@ custom:
   serverless-offline:
     httpPort: 3001
     
-resources:
-  Resources:
-    HostingS3Bucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.hostingBucketName}
-      DeletionPolicy: Retain  # Prevent accidental deletion
-      Condition: CreateHostingBucket  # Only create if the condition is met
-
-    DocsS3Bucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.docsBucketName}
-      DeletionPolicy: Retain  # Prevent accidental deletion
-      Condition: CreateDocsBucket  # Only create if the condition is met
-
-  Conditions:
-    CreateHostingBucket: !Equals [!Ref HostingS3Bucket, ""]  # Only create if it doesn't exist
-    CreateDocsBucket: !Equals [!Ref DocsS3Bucket, ""]  # Only create if it doesn't exist
-
-    HostingS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: !Ref HostingS3Bucket
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action: "s3:GetObject"
-              Resource: !Sub "arn:aws:s3:::${self:custom.hostingBucketName}/*"
-              Principal: "*"
-
-    DocsS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: !Ref DocsS3Bucket
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action: "s3:GetObject"
-              Resource: !Sub "arn:aws:s3:::${self:custom.docsBucketName}/*"
-              Principal: "*"
-
 functions:
   deleteMarkdown:
     handler: src/handler.deleteMarkdown
