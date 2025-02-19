@@ -43,12 +43,21 @@ export const getContent = async (event: { pathParameters?: { filePath?: string }
 
       return {
         statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+          "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+          "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+        },
         body: JSON.stringify({ type: "directory", directories, files }),
       };
     }
   } catch (error) {
     console.error(error);
-    return { statusCode: 404, body: JSON.stringify({ error: "Not found" }) };
+    return {
+      statusCode: 404,
+      headers: { "Access-Control-Allow-Origin": "*"},
+      body: JSON.stringify({ error: "Not found" }),
+    };
   }
 };
 
@@ -73,11 +82,16 @@ export const getMarkdown = async (filePath: string) => {
       console.log('Response:', response);
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
       body: JSON.stringify({ content: response.Body ? response.Body.toString("utf-8") : "" }),
     };
   } catch (error) {
     console.error(error);
-    return { statusCode: 404, body: JSON.stringify({ error: "File not found" }) };
+    return { statusCode: 404, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "File not found" }) };
   }
 };
 
@@ -100,7 +114,7 @@ export const uploadMarkdown = async (event: APIGatewayEvent) => {
       await marked.parse(fileContent);
     } catch (error) {
       console.error("Invalid Markdown syntax:", error);
-      return { statusCode: 400, body: JSON.stringify({ error: "Invalid Markdown syntax" }) };
+      return { statusCode: 400, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Invalid Markdown syntax" }) };
     }
 
     // Upload to S3
@@ -115,11 +129,16 @@ export const uploadMarkdown = async (event: APIGatewayEvent) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
       body: JSON.stringify({ message: "File uploaded successfully!" }),
     };
   } catch (error) {
     console.error("Upload failed:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Upload failed" }) };
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Upload failed" }) };
   }
 };
 
@@ -140,7 +159,7 @@ export const saveContent = async (event: APIGatewayEvent) => {
     const requestBody = JSON.parse(event.body || "{}");
 
     if (!requestBody.content) {
-      return { statusCode: 400, body: JSON.stringify({ error: "No content provided" }) };
+      return { statusCode: 400, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "No content provided" }) };
     }
 
     console.log("Saving file:", filePath);
@@ -156,11 +175,16 @@ export const saveContent = async (event: APIGatewayEvent) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
       body: JSON.stringify({ message: "File saved successfully", filePath }),
     };
   } catch (error) {
     console.error("Error saving file:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Failed to save file" }) };
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Failed to save file" }) };
   }
 };
 
@@ -184,10 +208,15 @@ export const deleteMarkdown = async (event: APIGatewayEvent) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
       body: JSON.stringify({ message: "File deleted successfully!" }),
     };
   } catch (error) {
     console.error("Delete failed:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Delete failed" }) };
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Delete failed" }) };
   }
 };
