@@ -10,7 +10,7 @@ export const ViewPage = () => {
   useEffect(() => {
     const fetchMarkdown = async () => {
       try {
-        console.log("Fetching content for:", encodeURIComponent(filePath));
+        console.log("Fetching content for here:", encodeURIComponent(filePath));
         const response = await axios.get(`/dev/pages/${encodeURIComponent(filePath)}`);
         const htmlContent = await marked(response.data.content);
         setContent(htmlContent); // Convert to HTML

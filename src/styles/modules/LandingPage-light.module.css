@@ -1,0 +1,42 @@
+/* Import common styles */
+@import url('LandingPage-common.module.css');
+@import url('Root.module.css');
+
+/* General container for the landing page */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: var(--light-page-background-color); /* Light grey background */
+    color: var(--light-contrast-color); /* Darker text for contrast */
+    font-family: Arial, sans-serif;
+}
+
+/* Title styling */
+.landing-page h1 {
+    font-size: 2.5rem;
+    color: var(--spotify-green); /* Spotify green */
+    margin-bottom: 20px;
+}
+
+/* Navigation links */
+.landing-page nav {
+    margin-bottom: 40px;
+}
+
+.landing-page nav a {
+    text-decoration: none;
+    color: var(--light-contrast-color);
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+.landing-page nav a:hover {
+    color: var(--hover-color); /* Darker green for hover */
+}

@@ -1,0 +1,48 @@
+body {
+    background-color: #f5deb3; /* Light gold */
+    color: black;
+    display: block;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* General container for the landing page */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f9f9f9; /* Light grey background */
+    color: #333; /* Darker text for contrast */
+    font-family: Arial, sans-serif;
+}
+
+/* Title styling */
+.landing-page h1 {
+    font-size: 2.5rem;
+    color: #1DB954; /* Spotify green */
+    margin-bottom: 20px;
+}
+
+/* Navigation links */
+.landing-page nav {
+    margin-bottom: 40px;
+}
+
+.landing-page nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+.landing-page nav a:hover {
+    color: #1DB954;
+}

@@ -1,51 +1,10 @@
 // src/handler.ts
-import { APIGatewayEvent, Context, Callback } from 'aws-lambda';
+import { APIGatewayEvent } from 'aws-lambda';
 import AWS from 'aws-sdk';
+import { marked } from "marked";
 
 const s3 = new AWS.S3();
 const BUCKET_NAME = process.env.DOCS_BUCKET_NAME; // This should be set in the environment or serverless config
-
-export const listPagesAndDirectories = async (event: { pathParameters?: { filePath?: string } }) => {
-  try {
-    let filePath = event.pathParameters?.filePath || "";
-
-    // Decode URL-encoded file paths
-    filePath = decodeURIComponent(filePath);
-
-    // Determine the prefix based on the directory being accessed
-    const prefix = filePath ? `pages/${filePath}/` : "pages/";
-
-    if (!BUCKET_NAME) {
-      throw new Error("S3_BUCKET_NAME is not defined");
-    }
-
-    const response = await s3
-      .listObjectsV2({
-        Bucket: BUCKET_NAME,
-        Prefix: prefix,
-        Delimiter: "/", // Groups items into directories
-      })
-      .promise();
-
-    // Extract directories (S3 "CommonPrefixes" are directories)
-    const directories = (response.CommonPrefixes || []).map((dir) =>
-      dir.Prefix ? dir.Prefix.replace(prefix, "").replace("/", "") : ""
-    );
-
-    // Extract markdown files
-    const files = (response.Contents || [])
-      .map((file) => file.Key ? file.Key.replace(prefix, "") : "")
-      .filter((file) => file.endsWith(".md"));
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ directories, files }),
-    };
-  } catch (error) {
-    console.error(error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Error listing pages" }) };
-  }
-};
 
 export const getContent = async (event: { pathParameters?: { filePath?: string } }) => {
   try {
@@ -84,39 +43,23 @@ export const getContent = async (event: { pathParameters?: { filePath?: string }
 
       return {
         statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+          "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+          "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+        },
         body: JSON.stringify({ type: "directory", directories, files }),
       };
     }
   } catch (error) {
     console.error(error);
-    return { statusCode: 404, body: JSON.stringify({ error: "Not found" }) };
-  }
-};
-
-
-
-export const listPages = async () => {
-  try {
-    console.log('BUCKET_NAME:', BUCKET_NAME);
-    if (!BUCKET_NAME) {
-      throw new Error('S3_BUCKET_NAME is not defined');
-    }
-
-    const response = await s3
-      .listObjectsV2({ Bucket: BUCKET_NAME as string, Prefix: "pages/" })
-      .promise();
-
-    const files = response.Contents?.map((file) => file.Key) || [];
-
     return {
-      statusCode: 200,
-      body: JSON.stringify({ files }),
+      statusCode: 404,
+      headers: { "Access-Control-Allow-Origin": "*"},
+      body: JSON.stringify({ error: "Not found" }),
     };
-  } catch (error) {
-    return { statusCode: 500, body: JSON.stringify({ error: (error as Error).message }) };
   }
 };
-
 
 export const getMarkdown = async (filePath: string) => {
   try {
@@ -139,111 +82,141 @@ export const getMarkdown = async (filePath: string) => {
       console.log('Response:', response);
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
       body: JSON.stringify({ content: response.Body ? response.Body.toString("utf-8") : "" }),
     };
   } catch (error) {
     console.error(error);
-    return { statusCode: 404, body: JSON.stringify({ error: "File not found" }) };
+    return { statusCode: 404, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "File not found" }) };
   }
 };
 
-export const uploadMarkdown = async (event: { body: string; }) => {
+export const uploadMarkdown = async (event: APIGatewayEvent) => {
   try {
-    const { fileName, content } = JSON.parse(event.body);
-    const key = `pages/${fileName}.md`;
-    
-    if (!BUCKET_NAME) {
-      throw new Error('S3_BUCKET_NAME is not defined');
+    if (!event.body) {
+      return { statusCode: 400, body: JSON.stringify({ error: "No file uploaded" }) };
     }
 
-    await s3
-      .putObject({
-        Bucket: BUCKET_NAME,
-        Key: key,
-        Body: content,
-        ContentType: "text/markdown",
-      })
-      .promise();
+    // Parse the request body
+    const body = JSON.parse(event.body);
+    const { fileName, fileContent } = body;
+
+    if (!fileName || !fileName.endsWith(".md")) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Invalid file type. Only .md files are allowed." }) };
+    }
+
+    // Validate Markdown
+    try {
+      await marked.parse(fileContent);
+    } catch (error) {
+      console.error("Invalid Markdown syntax:", error);
+      return { statusCode: 400, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Invalid Markdown syntax" }) };
+    }
+
+    // Upload to S3
+    const params = {
+      Bucket: BUCKET_NAME as string,
+      Key: `pages/${fileName}`,
+      Body: fileContent,
+      ContentType: "text/markdown",
+    };
+
+    await s3.upload(params).promise();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "File uploaded successfully", key }),
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
+      body: JSON.stringify({ message: "File uploaded successfully!" }),
     };
   } catch (error) {
-    return { statusCode: 500, body: JSON.stringify({ error: (error as Error).message }) };
+    console.error("Upload failed:", error);
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Upload failed" }) };
   }
 };
 
-// Handler to create a new page
-export const createPage = async (event: APIGatewayEvent, context: Context, callback: Callback) => {
-  const { title, slug, content } = JSON.parse(event.body || '{}');
-  const fileName = `${slug}.md`; // Using the slug as the file name
-  console.log('Title:', title);
-
-  if (!BUCKET_NAME) {
-    callback(null, {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'S3_BUCKET_NAME is not defined' }),
-    });
-    return;
-  }
-
-  // Prepare the S3 upload parameters
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: fileName,
-    Body: content,
-    ContentType: 'text/markdown',
-  };
-
+export const saveContent = async (event: APIGatewayEvent) => {
   try {
-    // Upload the markdown content to the S3 bucket
-    await s3.putObject(params).promise();
-    callback(null, {
-      statusCode: 201,
-      body: JSON.stringify({ message: 'Page created successfully' }),
-    });
-  } catch (error) {
-    callback(null, {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error creating page', error }),
-    });
-  }
-};
-
-// src/handler.ts
-export const getPage = async (event: APIGatewayEvent, context: Context, callback: Callback) => {
-    const slug = event.pathParameters?.slug;
-    const fileName = `${slug}.md`; // Use the slug as the file name
-  
-    // S3 parameters to fetch the file
     if (!BUCKET_NAME) {
-      callback(null, {
-        statusCode: 500,
-        body: JSON.stringify({ message: 'S3_BUCKET_NAME is not defined' }),
-        });
-      return;
+      throw new Error("DOCS_BUCKET_NAME is not defined");
     }
+
+    const filePath = event.pathParameters?.filePath
+      ? decodeURIComponent(event.pathParameters.filePath)
+      : "";
+
+    if (!filePath.endsWith(".md")) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Invalid file format" }) };
+    }
+
+    const requestBody = JSON.parse(event.body || "{}");
+
+    if (!requestBody.content) {
+      return { statusCode: 400, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "No content provided" }) };
+    }
+
+    console.log("Saving file:", filePath);
 
     const params = {
       Bucket: BUCKET_NAME,
-      Key: fileName,
+      Key: `pages/${filePath}`,
+      Body: requestBody.content,
+      ContentType: "text/markdown",
     };
 
-    try {
-      // Get the markdown file from S3
-      const data = await s3.getObject(params).promise();
-      const content = data.Body?.toString('utf-8') || '';
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify({ title: slug, content }), // You could include a title or other metadata here if needed
-      });
-    } catch (error) {
-        console.error(error);
-      callback(null, {
-        statusCode: 404,
-        body: JSON.stringify({ message: 'Page not found' }),
-      });
+    await s3.putObject(params).promise();
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
+      body: JSON.stringify({ message: "File saved successfully", filePath }),
+    };
+  } catch (error) {
+    console.error("Error saving file:", error);
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Failed to save file" }) };
+  }
+};
+
+export const deleteMarkdown = async (event: APIGatewayEvent) => {
+  try {
+    if (!event.body) {
+      return { statusCode: 400, body: JSON.stringify({ error: "No file specified" }) };
     }
-  };
-  
+
+    const { filePath } = JSON.parse(event.body);
+    if (!filePath || !filePath.endsWith(".md")) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Invalid file path" }) };
+    }
+
+    const params = {
+      Bucket: BUCKET_NAME as string,
+      Key: `pages/${filePath}`, // Ensure it's under `pages/`
+    };
+
+    await s3.deleteObject(params).promise();
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin (you can restrict this to specific origins)
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST", // Allow specific HTTP methods
+        "Access-Control-Allow-Headers": "Content-Type,Authorization", // Allow specific headers
+      },
+      body: JSON.stringify({ message: "File deleted successfully!" }),
+    };
+  } catch (error) {
+    console.error("Delete failed:", error);
+    return { statusCode: 500, headers: { "Access-Control-Allow-Origin": "*"}, body: JSON.stringify({ error: "Delete failed" }) };
+  }
+};

@@ -8,8 +8,9 @@
     "clean": "rimraf ./build tsconfig.tsbuildinfo",
     "start": "yarn run start-ts && yarn run lint",
     "start-ts": "react-scripts start",
-    "build": "yarn run build-ts && yarn run lint",
+    "build": "yarn run build-ts && yarn run build-lambda && yarn run lint",
     "build-ts": "react-scripts build",
+    "build-lambda": "tsc --project tsconfig.json",
     "lint": "eslint -c eslint.config.js",
     "serve": "yarn run build && yarn run serve-no-build -l 3000",
     "serve-no-build": "serve -s build"

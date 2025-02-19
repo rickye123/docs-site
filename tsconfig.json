@@ -7,7 +7,7 @@
       "sourceMap": true,        // Enable source maps for debugging
       "allowJs": true,          // Allow JavaScript files (if any)
       "jsx": "react",           // React JSX support if needed (probably not for Lambda)
-      "moduleResolution": "node",
+      "moduleResolution": "bundler",
       "rootDir": "src",         // Root directory for your source files
       "strict": true,           // Enable strict type checking
       "esModuleInterop": true,  // Enable compatibility for ES modules
