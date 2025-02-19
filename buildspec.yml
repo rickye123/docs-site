@@ -5,8 +5,8 @@ env:
     CI: true
     FORCE_COLOR: 0
     DOCS_SITE_URL: https://cybonyx-docs-site.com
-    HOSTING_BUCKET: dev-docs-site-hosting-eu-west-2
-    DOCS_BUCKET: dev-docs-site-docs-eu-west-2
+    HOSTING_BUCKET: ${self:custom.hostingBucketName}
+    DOCS_BUCKET: ${self:custom.docsBucketName}
 
 phases:
   install:
@@ -31,3 +31,4 @@ phases:
       - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
 
       - echo "Build completed on $(date)"
+

@@ -4,6 +4,8 @@ provider:
   name: aws
   stage: dev
   region: eu-west-2
+  logRetentionInDays: 14  # Keeps logs for 14 days, adjust as needed
+  runtime: nodejs22.x
   environment:
     HOSTING_BUCKET_NAME: ${self:custom.hostingBucketName}
     DOCS_BUCKET_NAME: ${self:custom.docsBucketName}
@@ -16,9 +18,51 @@ provider:
 plugins:
   - serverless-offline
 
+resources:
+  Resources:
+    HostingBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.hostingBucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          IgnorePublicAcls: false
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+    DocsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.docsBucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          IgnorePublicAcls: false
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+    HostingBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref HostingBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource: "arn:aws:s3:::${self:custom.hostingBucketName}/*"
+
+    DocsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref DocsBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource: "arn:aws:s3:::${self:custom.docsBucketName}/*"
+
 custom:
-  hostingBucketName: ${self:provider.stage}-docs-site-hosting-${self:provider.region}
-  docsBucketName: ${self:provider.stage}-docs-site-docs-${self:provider.region}
+  hostingBucketName: cybonyx-${self:provider.stage}-docs-site-hosting-${self:provider.region}
+  docsBucketName: cybonyx-${self:provider.stage}-docs-site-docs-${self:provider.region}
   tags:
     owner: ${env:OWNER,'N/A'}
     ownerFunction: ${env:OWNER_FUNCTION,'N/A'}
@@ -33,18 +77,14 @@ functions:
           path: delete
           method: delete
           cors: true
-    logs:
-      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-deleteMarkdown-${opt:timestamp, 'default'}"
 
   getContent:
     handler: src/handler.getContent
     events:
       - http:
-          path: pages/{filePath*} # Single function handles everything
+          path: pages/{filePath+} # Single function handles everything
           method: get
           cors: true
-    logs:
-      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-getContent-${opt:timestamp, 'default'}"
 
   uploadMarkdown:
     handler: src/handler.uploadMarkdown
@@ -53,15 +93,11 @@ functions:
           path: upload
           method: post
           cors: true
-    logs:
-      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-uploadMarkdown-${opt:timestamp, 'default'}"
 
   saveContent:
     handler: src/handler.saveContent
     events:
       - http:
-          path: pages/{filePath*}
+          path: pages/{filePath+}
           method: put
           cors: true
-    logs:
-      logGroupName: "/aws/lambda/${self:provider.stage}-${self:service}-saveContent-${opt:timestamp, 'default'}"
