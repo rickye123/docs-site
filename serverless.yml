@@ -71,67 +71,33 @@ custom:
     
 functions:
   deleteMarkdown:
-    handler: src/handler.deleteMarkdown
+    handler: dist/handler.deleteMarkdown
     events:
       - http:
           path: delete
           method: delete
-          cors:
-            origins:
-              - "*"
-            headers:
-              - Content-Type
-              - Authorization
-            allowCredentials: false
+          cors: true
 
   getContent:
-    handler: src/handler.getContent
+    handler: dist/handler.getContent
     events:
       - http:
           path: pages/{filePath+} # Single function handles everything
           method: get
-          cors:
-            origins:
-              - "*"
-            headers:
-              - Content-Type
-              - Authorization
-            allowCredentials: false
-      - http:
-            path: pages/{filePath+}
-            method: options
-            cors:
-              origins:
-                - "*"
-              headers:
-                - Content-Type
-                - Authorization
-              allowCredentials: false
+          cors: true
 
   uploadMarkdown:
-    handler: src/handler.uploadMarkdown
+    handler: dist/handler.uploadMarkdown
     events:
       - http:
           path: upload
           method: post
-          cors:
-            origins:
-              - "*"
-            headers:
-              - Content-Type
-              - Authorization
-            allowCredentials: false
+          cors: true
 
   saveContent:
-    handler: src/handler.saveContent
+    handler: dist/handler.saveContent
     events:
       - http:
           path: pages/{filePath+}
           method: put
-          cors:
-            origins:
-              - "*"
-            headers:
-              - Content-Type
-              - Authorization
-            allowCredentials: false
+          cors: true
