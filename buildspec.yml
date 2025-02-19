@@ -4,10 +4,8 @@ env:
   variables:
     CI: true
     FORCE_COLOR: 0
-    DOCS_SITE_URL: https://cybonyx-docs-site.com
-    HOSTING_BUCKET: ${self:custom.hostingBucketName}
-    DOCS_BUCKET: ${self:custom.docsBucketName}
-    AWS_DEFAULT_REGION: ${self:provider.region}
+    HOSTING_BUCKET: cybonyx-dev-docs-site-hosting-eu-west-2
+    AWS_DEFAULT_REGION: eu-west-2
 
 phases:
   install:
@@ -26,10 +24,10 @@ phases:
   post_build:
     commands:
       - echo "Deploying static site to S3..."
-      - aws s3 sync ./build/ s3://$HOSTING_BUCKET/ --region eu-west-2
+      - aws s3 sync ./build/ s3://$HOSTING_BUCKET/ --region "$AWS_DEFAULT_REGION"
 
       - echo "Deploying API with Serverless..."
-      - serverless deploy --region eu-west-2 --stage "$STAGE"
+      - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
 
       - echo "Build completed on $(date)"
 
