@@ -7,6 +7,7 @@ env:
     DOCS_SITE_URL: https://cybonyx-docs-site.com
     HOSTING_BUCKET: ${self:custom.hostingBucketName}
     DOCS_BUCKET: ${self:custom.docsBucketName}
+    AWS_DEFAULT_REGION: ${self:provider.region}
 
 phases:
   install:
