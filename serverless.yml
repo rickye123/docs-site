@@ -97,6 +97,16 @@ functions:
               - Content-Type
               - Authorization
             allowCredentials: false
+      - http:
+            path: pages/{filePath+}
+            method: options
+            cors:
+              origins:
+                - "*"
+              headers:
+                - Content-Type
+                - Authorization
+              allowCredentials: false
 
   uploadMarkdown:
     handler: src/handler.uploadMarkdown
