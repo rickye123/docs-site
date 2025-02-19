@@ -26,10 +26,10 @@ phases:
   post_build:
     commands:
       - echo "Deploying static site to S3..."
-      - aws s3 sync ./build/ s3://$HOSTING_BUCKET/ --region "$AWS_DEFAULT_REGION"
+      - aws s3 sync ./build/ s3://$HOSTING_BUCKET/ --region eu-west-2
 
       - echo "Deploying API with Serverless..."
-      - serverless deploy --region "$AWS_DEFAULT_REGION" --stage "$STAGE"
+      - serverless deploy --region eu-west-2 --stage "$STAGE"
 
       - echo "Build completed on $(date)"
 
