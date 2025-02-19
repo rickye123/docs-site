@@ -76,7 +76,13 @@ functions:
       - http:
           path: delete
           method: delete
-          cors: true
+          cors:
+            origins:
+              - "*"
+            headers:
+              - Content-Type
+              - Authorization
+            allowCredentials: false
 
   getContent:
     handler: src/handler.getContent
@@ -84,7 +90,13 @@ functions:
       - http:
           path: pages/{filePath+} # Single function handles everything
           method: get
-          cors: true
+          cors:
+            origins:
+              - "*"
+            headers:
+              - Content-Type
+              - Authorization
+            allowCredentials: false
 
   uploadMarkdown:
     handler: src/handler.uploadMarkdown
@@ -92,7 +104,13 @@ functions:
       - http:
           path: upload
           method: post
-          cors: true
+          cors:
+            origins:
+              - "*"
+            headers:
+              - Content-Type
+              - Authorization
+            allowCredentials: false
 
   saveContent:
     handler: src/handler.saveContent
@@ -100,4 +118,10 @@ functions:
       - http:
           path: pages/{filePath+}
           method: put
-          cors: true
+          cors:
+            origins:
+              - "*"
+            headers:
+              - Content-Type
+              - Authorization
+            allowCredentials: false
