@@ -4,6 +4,8 @@ import DocumentationNav from "../components/DocumentationNav";
 import ViewDocumentation from "../components/ViewDocumentation";
 import '../global.css';
 
+const apiBaseUrl = process.env.REACT_APP_API_URL;
+
 export const Documentation = () => {
   const [directories, setDirectories] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
@@ -21,7 +23,7 @@ export const Documentation = () => {
     try {
       const encodedPath = encodeURIComponent(path);
       console.log('Encoded Path:', encodedPath);
-      const response = await axios.get(`/dev/pages${path ? `/${encodedPath}` : ""}`);
+      const response = await axios.get(`${apiBaseUrl}/pages${path ? `/${encodedPath}` : ""}`);
       console.log("API Response:", response.data);
 
       if (response.data.type === "directory") {
