@@ -101,3 +101,7 @@ functions:
           path: pages/{filePath+}
           method: put
           cors: true
+
+package:
+  patterns:
+    - build/dist/**
